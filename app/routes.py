@@ -1,8 +1,6 @@
-from flask import Blueprint
+from flask import Blueprint, request, jsonify
 from .controllers import make_prediction
-from .views import home, postQuery
-import request
-import jsonify
+from .views import home
 
 routes = Blueprint('main', __name__)
 
@@ -12,21 +10,14 @@ routes.route('/', methods=['GET','POST'])(home)
 
 # routes.route('/main', methods=['GET','POST'])(main)
 
-routes.route('/main', methods=['GET','POST'])(postQuery)
+# routes.route('/main', methods=['GET','POST'])(postQuery)
 
-predict_bp = Blueprint('predict_bp', __name__)
-
-@predict_bp.route('/predict', methods=['POST'])
+@routes.route('/predict', methods=['POST'])
 def predict():
-    try:
-        data = request.get_json()
-        input_data = data.get("input")
-        
-        if input_data is None:
-            return jsonify({"error": "No input data provided"}), 400
-
-        prediction = make_prediction(input_data)
-        return jsonify({"prediction": prediction})
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    """
+    Receives JSON data, passes it to make_prediction, and returns JSON response.
+    """
+    data = request.get_json()  # Get JSON data from request
+    if not data:
+        return jsonify({"error": "Invalid JSON input"}), 400
+    return make_prediction(data) 

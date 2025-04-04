@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soil Analysis Prediction</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        #map {
+            height: 400px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .search-container {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- <form
+      action="/predict"
+      method="post"
+      id="queryForm"
+      enctype="multipart/form-data"
+      onsubmit="return validateForm() && loading()"
+    > -->
+    <div class="container mt-5">
+        <h2 class="mb-4">Soil Analysis Prediction</h2>
+        
+        <form id="predictionForm" method="POST" action="{{ url_for('main.predict') }}">
+            <!-- Hidden input fields for coordinates -->
+            <input type="hidden" id="latitude" name="latitude" value="">
+            <input type="hidden" id="longitude" name="longitude" value="">
+            
+            <!-- Search box for address -->
+            <div class="search-container">
+                <div class="input-group">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Enter address to search...">
+                    <button class="btn btn-primary" type="button" id="searchButton">Search</button>
+                </div>
+            </div>
+            
+            <!-- Map container -->
+            <div id="map"></div>
+            
+            <!-- Soil parameters inputs -->
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="nitrogen" class="form-label">Nitrogen (N)</label>
+                    <input type="number" step="0.01" class="form-control" id="nitrogen" name="nitrogen" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="phosphorus" class="form-label">Phosphorus (P)</label>
+                    <input type="number" step="0.01" class="form-control" id="phosphorus" name="phosphorus" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="potassium" class="form-label">Potassium (K)</label>
+                    <input type="number" step="0.01" class="form-control" id="potassium" name="potassium" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="ph" class="form-label">pH</label>
+                    <input type="number" step="0.01" class="form-control" id="ph" name="ph" required>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-success">Predict</button>
+        </form>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Initialize the map
+        var map = L.map('map').setView([0, 0], 2);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Add a marker that can be moved
+        var marker = L.marker([0, 0], {
+            draggable: true
+        }).addTo(map);
+
+        // Update coordinates when marker is moved
+        marker.on('dragend', function(e) {
+            var position = marker.getLatLng();
+            updateCoordinates(position.lat, position.lng);
+        });
+
+        // Update coordinates when map is clicked
+        map.on('click', function(e) {
+            marker.setLatLng(e.latlng);
+            updateCoordinates(e.latlng.lat, e.latlng.lng);
+        });
+
+        // Function to update hidden input fields
+        function updateCoordinates(lat, lng) {
+            document.getElementById('latitude').value = lat;
+            document.getElementById('longitude').value = lng;
+        }
+
+        // Handle address search
+        document.getElementById('searchButton').addEventListener('click', function() {
+            var address = document.getElementById('searchInput').value;
+            if (address) {
+                // Using Nominatim API for geocoding
+                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.length > 0) {
+                            var lat = parseFloat(data[0].lat);
+                            var lon = parseFloat(data[0].lon);
+                            map.setView([lat, lon], 13);
+                            marker.setLatLng([lat, lon]);
+                            updateCoordinates(lat, lon);
+                        } else {
+                            alert('Address not found');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error searching for address');
+                    });
+            }
+        });
+
+        // Form submission handling
+        document.getElementById('predictionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validate coordinates
+            var lat = document.getElementById('latitude').value;
+            var lng = document.getElementById('longitude').value;
+            
+            if (!lat || !lng) {
+                alert('Please select a location on the map');
+                return;
+            }
+            
+            // If validation passes, submit the form
+            this.submit();
+        });
+    </script>
+        <!-- </form> -->
+
+</body>
+
+</html>

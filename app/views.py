@@ -5,8 +5,10 @@ import io
 
 views = Blueprint('views', __name__)
 
-@views.route('/home', methods=['GET','POST'])
+@views.route('/', methods=['GET','POST'])
 def home():
-    return render_template("index.html")
+    return render_template("landingPage.html")
 
-   
+@views.route('/predict', methods=['GET','POST'])
+def predict():
+    return render_template("predict.html")

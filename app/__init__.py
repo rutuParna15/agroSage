@@ -2,13 +2,9 @@ from flask import Flask
 
 def create_app():
     app = Flask(__name__)
-        
-    # from .routes import routes
-    from .controllers import controllers
-    from .views import views
+    app.secret_key = "your_secret_key"  # for session or flash messages
 
-    # app.register_blueprint(routes)
-    app.register_blueprint(controllers)
-    app.register_blueprint(views)
-    
+    from .routes import main
+    app.register_blueprint(main)
+
     return app

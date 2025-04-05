@@ -1,32 +1,26 @@
-from flask import Blueprint
-from .controllers import make_prediction
-from .views import home, postQuery
-import request
-import jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 
-routes = Blueprint('main', __name__)
+main = Blueprint("main", __name__)
 
-# routes.route('/resources', methods=['GET','POST'])(getResults)
+VALID_USERNAME = "user123"
+VALID_PASSWORD = "pass1234"
 
-routes.route('/', methods=['GET','POST'])(home)
+@main.route("/")
+def home():
+    return render_template("index.html")
 
-# routes.route('/main', methods=['GET','POST'])(main)
+@main.route("/login", methods=["GET", "POST"])
+def login():
+    error = None
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        if username != VALID_USERNAME or password != VALID_PASSWORD:
+            error = "Invalid Credentials"
+        else:
+            return redirect(url_for("main.dashboard"))
+    return render_template("login.html", error=error)
 
-routes.route('/main', methods=['GET','POST'])(postQuery)
-
-predict_bp = Blueprint('predict_bp', __name__)
-
-@predict_bp.route('/predict', methods=['POST'])
-def predict():
-    try:
-        data = request.get_json()
-        input_data = data.get("input")
-        
-        if input_data is None:
-            return jsonify({"error": "No input data provided"}), 400
-
-        prediction = make_prediction(input_data)
-        return jsonify({"prediction": prediction})
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+@main.route("/dashboard")
+def dashboard():
+    return render_template("dashboard.html")

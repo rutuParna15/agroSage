@@ -23,6 +23,7 @@ def login():
 
 @main.route("/dashboard")
 def dashboard():
+
     return render_template("dashboard.html")
 @main.route('/predict', methods=['POST'])
 def predict():

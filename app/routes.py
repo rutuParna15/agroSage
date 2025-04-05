@@ -24,3 +24,11 @@ def login():
 @main.route("/dashboard")
 def dashboard():
     return render_template("dashboard.html")
+@main.route('/predict', methods=['POST'])
+def predict():
+    name = request.form.get("name")
+    phone = request.form.get("phone")
+    state = request.form.get("state")
+    print(name, phone, state)  # Just for debugging
+
+    return render_template("predict.html")

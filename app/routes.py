@@ -30,5 +30,4 @@ def predict():
     phone = request.form.get("phone")
     state = request.form.get("state")
     print(name, phone, state)  # Just for debugging
-
     return render_template("predict.html")

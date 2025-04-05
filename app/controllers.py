@@ -7,7 +7,8 @@ import pickle
 import tensorflow as tf
 
 import os
-
+from groq import Groq
+from dotenv import load_dotenv
 
 controllers = Blueprint('controllers', __name__)
 
